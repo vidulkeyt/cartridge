@@ -41,6 +41,7 @@ public class GitHubAuthServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	    Config cfg = Config.getInstance();
 	    logger.debug("Got callback request " + request);
 	    OAuthAuthzResponse oar;
         try {
@@ -51,9 +52,9 @@ public class GitHubAuthServlet extends HttpServlet {
             OAuthClientRequest tokenReq = OAuthClientRequest
                     .tokenProvider(OAuthProviderType.GITHUB)
                     .setGrantType(GrantType.AUTHORIZATION_CODE)
-                    .setClientId("730d694f9478dc921d40")
-                    .setClientSecret("765dd1c85ae46466f53423833f7e28854af8ac6d")
-                    .setRedirectURI("http://helloworld2-vidulkeyt.rhcloud.com/github/auth")
+                    .setClientId(cfg.getClientId())
+                    .setClientSecret(cfg.getClientSecret())
+                    .setRedirectURI(cfg.getRedirectURI())
                     .setCode(code)
                     .buildQueryMessage();
      
@@ -64,6 +65,7 @@ public class GitHubAuthServlet extends HttpServlet {
                 String accessToken = oAuthResponse.getAccessToken();
                 Long expiresIn = oAuthResponse.getExpiresIn();
                 logger.info(String.format("Got access token '%s' which expires in %d", accessToken, expiresIn));
+                response.getWriter().format("Got access token '%s' which expires in %d", accessToken, expiresIn);
         } catch (Exception e) {
             logger.error("Error while redirect", e);
             throw new ServletException("OAuth exception", e);

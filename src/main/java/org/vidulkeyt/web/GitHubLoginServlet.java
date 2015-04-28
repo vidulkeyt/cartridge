@@ -37,12 +37,13 @@ public class GitHubLoginServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	    Config cfg = Config.getInstance();
 	    try {
 	        logger.debug("Build URL to github..");
             OAuthClientRequest authReq = OAuthClientRequest
                     .authorizationProvider(OAuthProviderType.GITHUB)
-                    .setClientId("730d694f9478dc921d40")
-                    .setRedirectURI("http://helloworld2-vidulkeyt.rhcloud.com/github/auth")
+                    .setClientId(cfg.getClientId())
+                    .setRedirectURI(cfg.getRedirectURI())
                     .buildQueryMessage();
             logger.debug("Redirect to " + authReq.getLocationUri());
             response.sendRedirect(authReq.getLocationUri());
