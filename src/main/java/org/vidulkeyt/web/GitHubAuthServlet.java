@@ -20,6 +20,10 @@ import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jcabi.github.Github;
+import com.jcabi.github.Repo;
+import com.jcabi.github.RtGithub;
+
 /**
  * Servlet implementation class AuthServlet
  */
@@ -65,7 +69,12 @@ public class GitHubAuthServlet extends HttpServlet {
                 String accessToken = oAuthResponse.getAccessToken();
                 Long expiresIn = oAuthResponse.getExpiresIn();
                 logger.info(String.format("Got access token '%s' which expires in %d", accessToken, expiresIn));
-                response.getWriter().format("Got access token '%s' which expires in %d", accessToken, expiresIn);
+                response.getWriter().format("Got access token '%s' which expires in %d\n", accessToken, expiresIn);
+                Github github = new RtGithub(accessToken);
+                Iterable<Repo> repos = github.repos().iterate("");
+                for (Repo r: repos) {
+                    response.getWriter().append(r.coordinates().toString() + "\n");
+                }
         } catch (Exception e) {
             logger.error("Error while redirect", e);
             throw new ServletException("OAuth exception", e);
