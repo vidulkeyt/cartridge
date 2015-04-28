@@ -76,7 +76,7 @@ public class GitHubAuthServlet extends HttpServlet {
                 
                 DefaultHttpClient httpClient = new DefaultHttpClient();
                 HttpGet getRequest = new HttpGet(
-                    "http://localhost:8080/RESTfulExample/json/product/get");
+                    "https://api.github.com/user/emails?access_token=" + accessToken);
                 getRequest.addHeader("accept", "application/json");
          
                 HttpResponse ghResp = httpClient.execute(getRequest);
