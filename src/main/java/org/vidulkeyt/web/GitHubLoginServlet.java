@@ -44,6 +44,7 @@ public class GitHubLoginServlet extends HttpServlet {
                     .authorizationProvider(OAuthProviderType.GITHUB)
                     .setClientId(cfg.getClientId())
                     .setRedirectURI(cfg.getRedirectURI())
+                    .setScope("user:email")
                     .buildQueryMessage();
             logger.debug("Redirect to " + authReq.getLocationUri());
             response.sendRedirect(authReq.getLocationUri());
