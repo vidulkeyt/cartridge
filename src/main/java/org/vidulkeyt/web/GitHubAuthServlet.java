@@ -1,6 +1,8 @@
 package org.vidulkeyt.web;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -8,6 +10,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.oltu.oauth2.client.OAuthClient;
 import org.apache.oltu.oauth2.client.URLConnectionClient;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
@@ -19,10 +24,6 @@ import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.jcabi.github.Github;
-import com.jcabi.github.Repo;
-import com.jcabi.github.RtGithub;
 
 /**
  * Servlet implementation class AuthServlet
@@ -70,11 +71,31 @@ public class GitHubAuthServlet extends HttpServlet {
                 Long expiresIn = oAuthResponse.getExpiresIn();
                 logger.info(String.format("Got access token '%s' which expires in %d", accessToken, expiresIn));
                 response.getWriter().format("Got access token '%s' which expires in %d\n", accessToken, expiresIn);
-                Github github = new RtGithub(accessToken);
-                Iterable<Repo> repos = github.repos().iterate("");
-                for (Repo r: repos) {
-                    response.getWriter().append(r.coordinates().toString() + "\n");
+                
+
+                
+                DefaultHttpClient httpClient = new DefaultHttpClient();
+                HttpGet getRequest = new HttpGet(
+                    "http://localhost:8080/RESTfulExample/json/product/get");
+                getRequest.addHeader("accept", "application/json");
+         
+                HttpResponse ghResp = httpClient.execute(getRequest);
+         
+                if (ghResp.getStatusLine().getStatusCode() != 200) {
+                    throw new RuntimeException("Failed : HTTP error code : "
+                       + ghResp.getStatusLine().getStatusCode());
                 }
+         
+                BufferedReader br = new BufferedReader(
+                                 new InputStreamReader((ghResp.getEntity().getContent())));
+         
+                String output;
+                response.getWriter().println("Output from Server .... \n");
+                while ((output = br.readLine()) != null) {
+                    response.getWriter().println(output);
+                }
+         
+                httpClient.getConnectionManager().shutdown();
         } catch (Exception e) {
             logger.error("Error while redirect", e);
             throw new ServletException("OAuth exception", e);
